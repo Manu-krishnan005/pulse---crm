@@ -4,15 +4,10 @@ import { messageQueue, startWorker } from './queue';
 const app = express();
 app.use(express.json({ limit: '10mb' }));
 
-// CORS — allow local dev and production CRM domain
-const allowedOrigins = [
-  'http://localhost:3000',
-  process.env.CRM_ORIGIN,
-].filter(Boolean);
-
+// CORS — open for all origins (this is a server-to-server microservice)
 app.use((_req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
 });
