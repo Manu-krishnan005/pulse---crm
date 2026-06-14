@@ -1,26 +1,34 @@
 import { Queue, Worker, Job } from 'bullmq';
-import { Redis } from 'ioredis';
 import { simulateDelivery } from './simulator';
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+const isTLS = REDIS_URL.startsWith('rediss://');
 
-// Create Redis connection — supports local (redis://) and Upstash TLS (rediss://)
-function createRedisConnection() {
-  const isTLS = REDIS_URL.startsWith('rediss://');
+/**
+ * Parse a Redis URL into a plain connection options object.
+ * BullMQ uses its own bundled ioredis — passing a plain object avoids
+ * the "two ioredis versions" TypeScript conflict.
+ */
+function parseRedisUrl(rawUrl: string) {
+  // Normalize rediss:// → redis:// for URL parsing, track TLS separately
+  const url = new URL(rawUrl.replace(/^rediss:\/\//, 'redis://'));
 
-  const redis = new Redis(REDIS_URL, {
-    maxRetriesPerRequest: null, // Required for BullMQ
+  return {
+    host: url.hostname,
+    port: parseInt(url.port, 10) || 6379,
+    ...(url.password ? { password: decodeURIComponent(url.password) } : {}),
+    ...(url.username && url.username !== 'default'
+      ? { username: decodeURIComponent(url.username) }
+      : {}),
+    maxRetriesPerRequest: null as null,  // Required by BullMQ
     enableReadyCheck: false,
     ...(isTLS ? { tls: {} } : {}),
-  });
-
-  redis.on('connect', () => console.log('✅ Redis connected'));
-  redis.on('error', (err) => console.error('❌ Redis error:', err.message));
-
-  return redis;
+  };
 }
 
-export const connection = createRedisConnection();
+const connection = parseRedisUrl(REDIS_URL);
+
+console.log(`🔗 Connecting to Redis at ${new URL(REDIS_URL.replace(/^rediss:\/\//, 'redis://')).hostname}${isTLS ? ' (TLS)' : ''}`);
 
 // Queue for delivery jobs
 export const messageQueue = new Queue('message-delivery', { connection });
