@@ -5,6 +5,8 @@
 
 Pulse is a full-stack CRM built for the Xeno Backend Engineering Assignment. It demonstrates how AI can be *woven into the fabric* of a CRM — not bolted on as a chatbot — to help D2C brands segment audiences, generate campaign copy, select channels, and understand campaign performance.
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Manu-krishnan005/pulse---crm&root=app)
+
 ---
 
 ## What Pulse Does
