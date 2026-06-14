@@ -4,11 +4,14 @@ import { simulateDelivery } from './simulator';
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
-// Create Redis connection
+// Create Redis connection — supports local (redis://) and Upstash TLS (rediss://)
 function createRedisConnection() {
+  const isTLS = REDIS_URL.startsWith('rediss://');
+
   const redis = new Redis(REDIS_URL, {
     maxRetriesPerRequest: null, // Required for BullMQ
     enableReadyCheck: false,
+    ...(isTLS ? { tls: {} } : {}),
   });
 
   redis.on('connect', () => console.log('✅ Redis connected'));
