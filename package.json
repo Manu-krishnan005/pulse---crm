@@ -1,0 +1,13 @@
+{
+  "name": "pulse-crm-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:app": "cd app && npm run dev",
+    "dev:channel": "cd channel-service && npm run dev",
+    "setup": "cd app && npm install && cd ../channel-service && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

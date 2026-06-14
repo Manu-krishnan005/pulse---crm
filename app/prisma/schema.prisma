@@ -1,0 +1,81 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id                 String              @id @default(cuid())
+  name               String
+  email              String              @unique
+  phone              String?
+  totalSpend         Float               @default(0)
+  lastOrderDate      DateTime?
+  tags               String[]
+  orders             Order[]
+  messageLogs        MessageLog[]
+  engagementHistory  EngagementHistory[]
+  createdAt          DateTime            @default(now())
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  amount      Float
+  items       Json
+  date        DateTime
+  createdAt   DateTime @default(now())
+}
+
+model Segment {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  filterJson  Json
+  campaigns   Campaign[]
+  createdAt   DateTime   @default(now())
+}
+
+model Campaign {
+  id                String       @id @default(cuid())
+  name              String
+  segmentId         String
+  segment           Segment      @relation(fields: [segmentId], references: [id])
+  channel           String
+  goal              String
+  messageVariants   Json
+  selectedVariant   Json?
+  status            String       @default("draft")
+  channelSuggestion Json?
+  messageLogs       MessageLog[]
+  createdAt         DateTime     @default(now())
+}
+
+model MessageLog {
+  id            String   @id @default(cuid())
+  campaignId    String
+  campaign      Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+  channel       String
+  status        String   @default("pending")
+  statusHistory Json     @default("[]")
+  createdAt     DateTime @default(now())
+}
+
+model EngagementHistory {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  channel    String
+  opens      Int      @default(0)
+  clicks     Int      @default(0)
+
+  @@unique([customerId, channel])
+}

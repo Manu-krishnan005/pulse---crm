@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pulse_postgres
+    environment:
+      POSTGRES_USER: pulse_user
+      POSTGRES_PASSWORD: pulse_password
+      POSTGRES_DB: pulse_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pulse_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulse_user -d pulse_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: pulse_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - pulse_redis_data:/data
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pulse_pgdata:
+  pulse_redis_data:
