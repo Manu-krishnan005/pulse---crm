@@ -180,7 +180,7 @@ cd channel-service
 npm run dev
 ```
 
-Open **[http://localhost:3000](https://pulse-crm-twwx.vercel.app)** 
+Open **[http://pulse-crm-twwx.vercel.app](https://pulse-crm-twwx.vercel.app)** 
 
 ---
 
